@@ -151,7 +151,7 @@ private:
 
 		//drive controls
 		double SpeedLinear = Drivestick.GetRawAxis(1) * -1; // get Yaxis value (forward)
-		double SpeedRotate = Drivestick.GetRawAxis(4) * -1; // get Xaxis value (turn)
+		double SpeedRotate = Drivestick.GetRawAxis(4) * 1; // get Xaxis value (turn)
 
 		// Set dead band for X and Y axis
 		if (fabs(SpeedLinear) < Deadband)
