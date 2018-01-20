@@ -1,4 +1,4 @@
-//Default code
+//Mule-2018
 #include <iostream>
 #include <memory>
 #include <string>
@@ -14,7 +14,7 @@
 #include <opencv2/core/core.hpp>
 
 class Robot: public frc::IterativeRobot {
-	RobotDrive Adrive;
+	DifferentialDrive Adrive;
 	frc::LiveWindow* lw = LiveWindow::GetInstance();
 	frc::SendableChooser<std::string> chooseDriveEncoder;
 	const std::string RH_Encoder = "RH_Encoder";
@@ -32,6 +32,8 @@ class Robot: public frc::IterativeRobot {
 	VictorSP Dpad2;
 	VictorSP RightStick1;
 	VictorSP RightStick2;
+	VictorSP Claw1;
+	VictorSP Claw2;
 	Timer EncoderCheckTimer;
 	Encoder EncoderLeft;
 	Encoder EncoderRight;
@@ -65,8 +67,8 @@ public:
 	Robot() :
 			Adrive(DriveLeft0, DriveRight0), Drivestick(0), OperatorStick(1), DriveLeft0(
 					0), DriveLeft1(1), DriveLeft2(2), DriveRight0(3), DriveRight1(
-					4), DriveRight2(5), Dpad1(8), Dpad2(9), RightStick1(6), RightStick2(
-					7), EncoderLeft(0, 1), EncoderRight(2, 3), OutputX(0), OutputY(
+					4), DriveRight2(5), Dpad1(10), Dpad2(11), RightStick1(6), RightStick2(
+					7), Claw1(8), Claw2(9), EncoderLeft(0, 1), EncoderRight(2, 3), OutputX(0), OutputY(
 					0), DiIn8(8), DiIn9(9)  {
 
 	}
@@ -128,9 +130,9 @@ private:
 		bool RightStickLimit2 = DiIn9.Get();
 
 		//high gear & low gear controls
-		if (Drivestick.GetRawButton(5))
-			driveSolenoid->Set(true);			// High gear press LH bumper
 		if (Drivestick.GetRawButton(6))
+			driveSolenoid->Set(true);			// High gear press LH bumper
+		if (Drivestick.GetRawButton(5))
 			driveSolenoid->Set(false);			// Low gear press RH bumper
 
 		//  Rumble code
@@ -148,8 +150,8 @@ private:
 		Drivestick.SetRumble(Vibrate, LHThr);// Set Right Rumble to RH Trigger
 
 		//drive controls
-		double SpeedLinear = Drivestick.GetRawAxis(1) * 1; // get Yaxis value (forward)
-		double SpeedRotate = Drivestick.GetRawAxis(4) * 1; // get Xaxis value (turn)
+		double SpeedLinear = Drivestick.GetRawAxis(1) * -1; // get Yaxis value (forward)
+		double SpeedRotate = Drivestick.GetRawAxis(4) * -1; // get Xaxis value (turn)
 
 		// Set dead band for X and Y axis
 		if (fabs(SpeedLinear) < Deadband)
@@ -182,7 +184,7 @@ private:
 		 */
 
 		//A Button to extend (Solenoid On)
-		Abutton->Set(OperatorStick.GetRawButton(1));
+		Abutton->Set(OperatorStick.GetRawButton(6));
 
 		//B Button to extend (Solenoid On)
 		Bbutton->Set(OperatorStick.GetRawButton(2));
@@ -223,7 +225,8 @@ private:
 			Dpad2.Set(0.0);
 		}
 
-		double RightSpeed = OperatorStick.GetRawAxis(4) * -1; // get Xaxis value for Right Joystick
+		double RightSpeed = OperatorStick.GetRawAxis(1) * -1; // get Xaxis value for Left Joystick
+		double ClawSpeed = (OperatorStick.GetRawAxis(2) + (OperatorStick.GetRawAxis(3) * -1));
 
 		if (fabs(RightSpeed) < Deadband){
 					RightSpeed = 0.0;
@@ -233,18 +236,11 @@ private:
 		else if (RightSpeed < Deadband and !RightStickLimit2)
 			RightSpeed = 0.0;
 
-	//	if (OperatorStick.GetRawAxis(2) > 0.5) {
-	//		RightSpeed = 1.0;
-	//	} else if (OperatorStick.GetRawAxis(3) > 0.5) {
-	//		RightSpeed = -1.0;
-	//	}
-	//	else if (OperatorStick.GetRawAxis(4) < Deadband)
-	//		RightSpeed = 0.0;
-
 		RightStick1.Set(RightSpeed);
 		RightStick2.Set(RightSpeed);
 
-
+		Claw1.Set(ClawSpeed);
+		Claw2.Set(ClawSpeed);
 	}
 
 // These are the state numbers for each part of autoBlue1
